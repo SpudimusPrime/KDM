@@ -1,17 +1,32 @@
 //public schema
 //sub schema named for public they reference
+TableGroup reference{
+    reference.gender
+    reference.page_type
+}
+
+TableGroup innovation{
+    innovation.innovation_type
+}
+
 TableGroup public{
-    gender
     settlement
     campaign
     expansion
-    page_type
     impairment
+    monster
+    severe_injury
+    innovation
+    ability
 }
 
 TableGroup join{
     many_to_many.settlement_expansion
     many_to_many.survivor_impairment
+    many_to_many.survivor_ability
+    many_to_many.gear_card_set
+    many_to_many.gear_card_special_rule
+    many_to_many.gear_card_keyword
 }
 
 TableGroup settlement{
@@ -23,12 +38,26 @@ TableGroup expansion{
     expansion.book
 }
 
-table page_type [headercolor: #ffffff]{
+TableGroup gear{
+    gear.keyword
+    gear.special_rule
+    gear.card
+    gear.craft_location
+    gear.set
+}
+
+/*
+TableGroup monster{
+    
+}
+*/
+
+table reference.page_type [headercolor: #ffffff]{
   id int [pk]
   type_name varchar(50)
 }
 
-table gender [headercolor: #ffffff]{
+table reference.gender [headercolor: #ffffff]{
   id int [pk]
   gender varchar(10)
   note: '''
@@ -90,7 +119,7 @@ table settlement.survivor{
   survivor_name varchar(50)
 }
 ref: settlement.survivor.settlement_id > settlement.id
-ref: settlement.survivor.gender_id > gender.id
+ref: settlement.survivor.gender_id > reference.gender.id
 
 table expansion.book{
   id int [pk]
@@ -102,7 +131,7 @@ table expansion.book{
   note: "Was called dbo.book_pages"
 }
 ref: expansion.book.expansion_id > expansion.id
-ref: expansion.book.page_type_id > page_type.id
+ref: expansion.book.page_type_id > reference.page_type.id
 
 table impairment [headercolor: #ffffff]{
     id int [pk]
@@ -147,7 +176,7 @@ Table injury_location{
     location_name varchar(10)
 }
 
-Table innovation_type{
+Table innovation.innovation_type{
     id int [pk]
     type_name varchar(20)
 }
@@ -162,8 +191,8 @@ Table innovation{
 }
 ref: innovation.expansion_id > expansion.id
 ref: innovation.consequence_of > innovation.id
-ref: innovation.primary_innovation_type_id > innovation_type.id
-ref: innovation.secondary_innovation_type_id > innovation_type.id
+ref: innovation.primary_innovation_type_id > innovation.innovation_type.id
+ref: innovation.secondary_innovation_type_id > innovation.innovation_type.id
 
 Table severe_injury{
     id int [pk]
