@@ -1,0 +1,282 @@
+//public schema
+//sub schema named for public they reference
+TableGroup public{
+    gender
+    settlement
+    campaign
+    expansion
+    page_type
+    impairment
+}
+
+TableGroup join{
+    many_to_many.settlement_expansion
+    many_to_many.survivor_impairment
+}
+
+TableGroup settlement{
+    settlement.calendar
+    settlement.survivor
+}
+
+TableGroup expansion{
+    expansion.book
+}
+
+table page_type [headercolor: #ffffff]{
+  id int [pk]
+  type_name varchar(50)
+}
+
+table gender [headercolor: #ffffff]{
+  id int [pk]
+  gender varchar(10)
+  note: '''
+    Was called 'dbo.gender_ints'
+    The game kinda relies on a binary\
+ gender in a lot of places. Clearly \
+ I've planned this table so it is \
+ technically possible to include\
+ more but some core rules might need \
+ modification to work with it.\
+ Maybe an 'assigned at birth?'\
+  '''
+}
+
+table expansion [headercolor: #ffffff]{
+  id int [pk]
+  expansion_name varchar(50)
+  version numeric(4,2)
+  note: "Still trying to figure out how to properly store the version number. Maybe a subtable?"
+}
+
+table campaign [headercolor: #ffffff]{
+  id int [pk]
+  expansion_id int
+  campaign_name varchar(50)
+}
+ref: campaign.expansion_id - expansion.id
+
+table settlement [headercolor: #ffffff]{
+  id int [pk]
+  campaign_id int
+  settlement_name varchar(50)
+  survival_limit int
+  death_count int
+  population int
+  lantern_year int
+  is_lost bool [default: 0]
+}
+ref: settlement.campaign_id > campaign.id
+
+table settlement.calendar{
+  id int [pk]
+  settlement_id int
+}
+ref: settlement.calendar.settlement_id - settlement.id
+
+table many_to_many.settlement_expansion [headercolor: #ff0000]{
+  id int [pk]
+  settlement_id int
+  expansion_id int
+}
+ref: many_to_many.settlement_expansion.settlement_id <> settlement.id
+ref: many_to_many.settlement_expansion.expansion_id <> expansion.id
+
+table settlement.survivor{
+  id int [pk]
+  settlement_id int
+  gender_id int
+  survivor_name varchar(50)
+}
+ref: settlement.survivor.settlement_id > settlement.id
+ref: settlement.survivor.gender_id > gender.id
+
+table expansion.book{
+  id int [pk]
+  expansion_id int
+  page_type_id int
+  page_number int
+  page_title varchar(250)
+  page_subtitle varchar(250)
+  note: "Was called dbo.book_pages"
+}
+ref: expansion.book.expansion_id > expansion.id
+ref: expansion.book.page_type_id > page_type.id
+
+table impairment [headercolor: #ffffff]{
+    id int [pk]
+    expansion_id int
+    impairment_name varchar(50)
+    impairment_text text
+    impairment_object json [note: '''
+    Right now I think the physical effects of the
+    impairment will go here, but I'm still figuring this out
+    ''']
+}
+ref: impairment.expansion_id > expansion.id
+
+Table many_to_many.survivor_impairment [headercolor: #ff0000]{
+    id int [pk]
+    survivor_id int
+    impairment_id int
+}
+ref: many_to_many.survivor_impairment.survivor_id <> settlement.survivor.id
+ref: many_to_many.survivor_impairment.impairment_id <> impairment.id
+
+Table ability [headercolor: #ffffff]{
+    id int [pk]
+    expansion_id int
+    ability_name varchar(50)
+    ability_text text
+    ability_object json
+}
+ref: ability.expansion_id > expansion.id
+
+Table many_to_many.survivor_ability [headercolor: #ff0000]{
+    id int [pk]
+    survivor_id int
+    ability_id int
+}
+ref: many_to_many.survivor_ability.survivor_id <> settlement.survivor.id
+ref: many_to_many.survivor_ability.ability_id <> ability.id
+
+
+Table injury_location{
+    id int [pk]
+    location_name varchar(10)
+}
+
+Table innovation_type{
+    id int [pk]
+    type_name varchar(20)
+}
+
+Table innovation{
+    id int [pk]
+    expansion_id int
+    consequence_of int
+    primary_innovation_type_id int
+    secondary_innovation_type_id int
+    innovation_name varchar(50)
+}
+ref: innovation.expansion_id > expansion.id
+ref: innovation.consequence_of > innovation.id
+ref: innovation.primary_innovation_type_id > innovation_type.id
+ref: innovation.secondary_innovation_type_id > innovation_type.id
+
+Table severe_injury{
+    id int [pk]
+    injury_location_id int
+    impairment_id int
+    roll_start int
+    injury_title varchar(50)
+    injury_text text
+    injury_object json
+}
+ref: severe_injury.injury_location_id > injury_location.id
+ref: severe_injury.impairment_id > impairment.id
+
+Table monster{
+    id int [pk]
+    expansion_id int
+    monster_type_id int
+    monster_name varchar(50)
+    node int
+}
+ref: monster.expansion_id > expansion.id
+ref: monster.monster_type_id > monster.type.id
+
+Table monster.type{
+    id int [pk]
+    type_name varchar(20)
+    note: '''
+    1: Quary
+    2: Nemesis
+    3: Finale?
+    '''
+}
+
+Table gear.set{
+    id int [pk]
+    expansion_id int
+    set_name varchar(50)
+    bonus_armor int
+    set_ability int
+    set_object json
+}
+ref: gear.set.expansion_id > expansion.id
+
+Table gear.connection_colors{
+    id int [pk]
+    color varchar(10) //[note: "common color name"]
+    color_hex varchar(10) //[note: "string format hex"]
+    //note: '''1: Red 2: Green 3: Blue   '''
+}
+
+Table gear.craft_location{
+    id int [pk]
+    expansion_id int
+    rule_text text
+    rule_object json
+}
+ref: gear.craft_location.expansion_id > expansion.id
+
+Table gear.card{
+    id int [pk]
+    craft_location_id int
+    connection_top int
+    connection_bottom int
+    connection_left int
+    connection_right int
+    bonus_red int
+    bonus_green int
+    bonus_blue int
+    rule_text text
+    rule_object json
+    gear_name varchar(50)
+}
+ref: gear.card.craft_location_id > gear.craft_location.id
+ref: gear.card.connection_top > gear.connection_colors.id
+ref: gear.card.connection_bottom > gear.connection_colors.id
+ref: gear.card.connection_left > gear.connection_colors.id
+ref: gear.card.connection_right > gear.connection_colors.id
+
+
+Table many_to_many.gear_card_set{
+    id int [pk]
+    gear_card_id int
+    gear_set_id int
+}
+ref: many_to_many.gear_card_set.gear_card_id <> gear.card.id
+ref: many_to_many.gear_card_set.gear_set_id <> gear.set.id
+
+Table gear.special_rule{
+    id int [pk]
+    rule_name varchar(30)
+    rule_text text
+    rule_object json
+}
+
+Table many_to_many.gear_card_special_rule{
+    id int [pk]
+    gear_card_id int
+    gear_special_rule_id int
+}
+ref: many_to_many.gear_card_special_rule.gear_special_rule_id <> gear.special_rule.id
+ref: many_to_many.gear_card_special_rule.gear_card_id <> gear.card.id
+
+Table gear.keyword{
+    id int [pk]
+    keyword varchar(20)
+    rule_text text
+    rule_object json
+}
+
+Table many_to_many.gear_card_keyword{
+    id int [pk]
+    gear_card_id int
+    gear_keyword_id int
+}
+ref: many_to_many.gear_card_keyword.gear_card_id <> gear.card.id
+ref: many_to_many.gear_card_keyword.gear_keyword_id <> gear.keyword.id
