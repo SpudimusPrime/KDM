@@ -1,9 +1,5 @@
 //public schema
 //sub schema named for public they reference
-TableGroup reference{
-    reference.gender
-    reference.page_type
-}
 
 TableGroup innovation{
     innovation.innovation_type
@@ -52,26 +48,6 @@ TableGroup monster{
 }
 */
 
-table reference.page_type [headercolor: #ffffff]{
-  id int [pk]
-  type_name varchar(50)
-}
-
-table reference.gender [headercolor: #ffffff]{
-  id int [pk]
-  gender varchar(10)
-  note: '''
-    Was called 'dbo.gender_ints'
-    The game kinda relies on a binary\
- gender in a lot of places. Clearly \
- I've planned this table so it is \
- technically possible to include\
- more but some core rules might need \
- modification to work with it.\
- Maybe an 'assigned at birth?'\
-  '''
-}
-
 table expansion [headercolor: #ffffff]{
   id int [pk]
   expansion_name varchar(50)
@@ -115,23 +91,32 @@ ref: many_to_many.settlement_expansion.expansion_id <> expansion.id
 table settlement.survivor{
   id int [pk]
   settlement_id int
-  gender_id int
+  gender gender_value
   survivor_name varchar(50)
 }
 ref: settlement.survivor.settlement_id > settlement.id
-ref: settlement.survivor.gender_id > reference.gender.id
+//ref: settlement.survivor.gender_id > reference.gender.id
+
+enum gender_value {
+    "Male"
+    "Female"
+}
+
+enum page_type {
+    "Story Event"
+    "Finale"
+}
 
 table expansion.book{
   id int [pk]
   expansion_id int
-  page_type_id int
+  page page_type
   page_number int
   page_title varchar(250)
   page_subtitle varchar(250)
   note: "Was called dbo.book_pages"
 }
 ref: expansion.book.expansion_id > expansion.id
-ref: expansion.book.page_type_id > reference.page_type.id
 
 table impairment [headercolor: #ffffff]{
     id int [pk]
