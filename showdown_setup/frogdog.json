@@ -1,0 +1,69 @@
+{
+    "monster_pos": [
+      {
+        "col": 10,
+        "color": "#756C6D",
+        "facing": "up",
+        "row": 7,
+        "size": {
+          "height": 3,
+          "width": 3
+        }
+      }
+    ],
+    "survivor_pos": [
+      {
+        "col": 8,
+        "color": "#6AACD7",
+        "row": 8,
+        "size": {
+          "height": 3,
+          "width": 1
+        }
+      },
+      {
+        "col": 10,
+        "color": "#6AACD7",
+        "row": 6,
+        "size": {
+          "height": 1,
+          "width": 3
+        }
+      },
+      {
+        "col": 12,
+        "color": "#6AACD7",
+        "row": 10,
+        "size": {
+          "height": 1,
+          "width": 3
+        }
+      }
+    ],
+    "terrain_pos": [
+      {
+        "color": "#8cae7a",
+        "count": 3,
+        "location": [
+          {
+            "col": 5,
+            "row": 8
+          },
+          {
+            "col": 10,
+            "row": 3
+          },
+          {
+            "col": 12,
+            "row": 11
+          }
+        ],
+        "name": "Mammoth Leaf",
+        "rules": "",
+        "size": {
+          "height": 3,
+          "width": 3
+        }
+      }
+    ]
+  }
